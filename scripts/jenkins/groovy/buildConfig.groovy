@@ -345,8 +345,8 @@ class BuildConfig {
   }
 
   static enum NodeLabels {
-    LABELS_C1('docker && !mr-0xc8', 'mr-0xc9', 'mr-dl16', 'mr-dl3'),
-    LABELS_B4('docker', 'docker', 'mr-dl16', 'mr-dl3')
+    LABELS_C1('docker && !mr-0xc8', 'mr-0xc9', 'mr-dl16', 'mr-dl5'),
+    LABELS_B4('docker', 'docker', 'mr-dl16', 'mr-dl5')
 
     private final String defaultNodeLabel
     private final String benchmarkNodeLabel
