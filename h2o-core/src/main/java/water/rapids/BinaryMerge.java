@@ -730,6 +730,10 @@ class BinaryMerge extends DTask<BinaryMerge> {
           ni = _riteSB._chunkNode[chkIdx];
           pnl = perNodeRightLoc[ni]++;   // pnl = per node location.   // TODO Split to an if() and batch and offset separately
           chks = grrrsRite[ni][(int)(pnl / batchSizeUUID)]._chk;
+          boolean leftChkExist = (grrrsLeft!=null) && (grrrsLeft.length > ni) && (grrrsLeft[ni]!=null) &&
+                  (grrrsLeft[ni].length > (int)(pnl / batchSizeUUID)) &&
+                  (grrrsLeft[ni][(int)(pnl / batchSizeUUID)]!=null);
+          double[][] leftchks = leftChkExist?grrrsLeft[ni][(int)(pnl / batchSizeUUID)]._chk:null;
           chksString = grrrsRite[ni][(int)(pnl / batchSizeUUID)]._chkString;
           o = (int)(pnl % batchSizeUUID);
           for (int col=0; col<numColsInResult-numLeftCols; col++) {
@@ -737,14 +741,26 @@ class BinaryMerge extends DTask<BinaryMerge> {
             int colIndex = numLeftCols + col;
             if (this._stringCols[colIndex]) {
               if (chksString[_numJoinCols + col][o]!=null)
-                frameLikeChunks4String[colIndex][whichChunk][offset] = chksString[_numJoinCols + col][o];  // colForBatch.atd(row);
+                frameLikeChunks4String[colIndex][whichChunk][offset] = validateKeys(chks, leftchks, _numJoinCols, o)?
+                        chksString[_numJoinCols + col][o]:null;  // colForBatch.atd(row);
             } else
-              frameLikeChunks[colIndex][whichChunk][offset] = chks[_numJoinCols + col][o];  // colForBatch.atd(row);
+              frameLikeChunks[colIndex][whichChunk][offset] = validateKeys(chks, leftchks, _numJoinCols, o)?
+                      chks[_numJoinCols + col][o]:Double.NaN;  // colForBatch.atd(row);
           }
           resultLoc++;
         }
       }
     }
+  }
+
+  private boolean validateKeys(double[][] chks, double[][] leftChks, int numJointCols, int row) {
+    if (leftChks == null)
+      return true;
+    for (int cindex=0; cindex < numJointCols; cindex++) {
+      if (Double.isNaN(chks[cindex][row]) && !(Double.isNaN(leftChks[cindex][row])))
+        return false;
+    }
+    return true;
   }
 
   // compress all chunks and store them
