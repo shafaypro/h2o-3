@@ -37,7 +37,7 @@ public class AstMergeTest extends TestUtil {
               .withName("holdoutEncodingMap")
               .withColNames( "ColA", "ColC")
               .withVecTypes(Vec.T_CAT, Vec.T_STR)
-              .withDataForCol(0, ar(null, "c", "e"))
+              .withDataForCol(0, ar(null, "c", null))
               .withDataForCol(1, ar("str42", "no", "yes"))
               .build();
       Frame answer = new TestFrameBuilder()
@@ -45,7 +45,7 @@ public class AstMergeTest extends TestUtil {
               .withVecTypes(Vec.T_CAT, Vec.T_NUM, Vec.T_STR)
               .withDataForCol(0, ar("a", "b", "c", "e"))
               .withDataForCol(1, ar(1, 2, 3, 4))
-              .withDataForCol(2, ar(null, null, "no", "yes"))
+              .withDataForCol(2, ar(null, null, "no", null))
               .build();
       Scope.track(answer);
       Scope.track(holdoutEncodingMap);
