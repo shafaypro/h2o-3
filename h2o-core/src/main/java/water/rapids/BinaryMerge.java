@@ -29,6 +29,7 @@ class BinaryMerge extends DTask<BinaryMerge> {
   private transient KeyOrder _leftKO, _riteKO;
 
   private final int _numJoinCols;
+  private boolean[] _joinColsCat;
   private transient long _leftFrom;
   private transient int _retBatchSize;
 
@@ -83,12 +84,13 @@ class BinaryMerge extends DTask<BinaryMerge> {
   }
 
   // In X[Y], 'left'=i and 'right'=x
-  BinaryMerge(FFSB leftSB, FFSB riteSB, boolean allLeft) {   
+  BinaryMerge(FFSB leftSB, FFSB riteSB, boolean allLeft) {
     assert riteSB._msb!=-1 || allLeft;
     _leftSB = leftSB;
     _riteSB = riteSB;
     // the number of columns in the key i.e. length of _leftFieldSizes and _riteSB._fieldSizes
     _numJoinCols = Math.min(_leftSB._fieldSizes.length, _riteSB._fieldSizes.length);
+    _joinColsCat = new boolean[_numJoinCols];
     _allLeft = allLeft;
     _allRight = false;  // TODO: pass through
     int columnsInResult = (_leftSB._frame == null?0:_leftSB._frame.numCols()) +
@@ -96,6 +98,10 @@ class BinaryMerge extends DTask<BinaryMerge> {
     _stringCols = new boolean[columnsInResult];
     // check left frame first
     if (_leftSB._frame!=null) {
+      for (int col = 0; col < _numJoinCols; col++) {
+        if (_leftSB._frame.vec(col).isCategorical())
+          _joinColsCat[col] = true;
+      }
       for (int col = _numJoinCols; col < _leftSB._frame.numCols(); col++) {
         if (_leftSB._frame.vec(col).isString())
           _stringCols[col] = true;
@@ -197,7 +203,7 @@ class BinaryMerge extends DTask<BinaryMerge> {
     // occur, they only happen for leftMSB 0 and 255, and will quickly resolve
     // to no match in the right bucket via bmerge
     t0 = System.nanoTime();
-    bmerge_r(_leftFrom, leftTo, -1, rightN);   
+    bmerge_r(_leftFrom, leftTo, -1, rightN);
     _timings[1] += (System.nanoTime() - t0) / 1e9;
 
     if (_allLeft) {
@@ -412,7 +418,7 @@ class BinaryMerge extends DTask<BinaryMerge> {
     assert lUpp - lLow >= 2;
 
     // if value found, rLow and rUpp surround it, unlike standard binary search where rLow falls on it
-    long len = rUpp - rLow - 1;  
+    long len = _joinColsCat.length==0?(rUpp - rLow - 1):(_joinColsCat[0]?(rLow<0?(rUpp<0?0:Math.max(1, rUpp-1)):(rUpp - rLow - 1)):(rUpp - rLow - 1));
     // TODO - we don't need loop here :)  Why does perNodeNumRightRowsToFetch increase so much?
     if (len > 0 || _allLeft) {
       long t0 = System.nanoTime();
@@ -740,12 +746,14 @@ class BinaryMerge extends DTask<BinaryMerge> {
             // TODO: this only works for numeric columns (not for UUID, strings, etc.)
             int colIndex = numLeftCols + col;
             if (this._stringCols[colIndex]) {
-              if (chksString[_numJoinCols + col][o]!=null)
-                frameLikeChunks4String[colIndex][whichChunk][offset] = validateKeys(chks, leftchks, _numJoinCols, o)?
-                        chksString[_numJoinCols + col][o]:null;  // colForBatch.atd(row);
-            } else
-              frameLikeChunks[colIndex][whichChunk][offset] = validateKeys(chks, leftchks, _numJoinCols, o)?
-                      chks[_numJoinCols + col][o]:Double.NaN;  // colForBatch.atd(row);
+              if (chksString[_numJoinCols + col][o]!=null) {
+                frameLikeChunks4String[colIndex][whichChunk][offset] = validateKeys(chks, leftchks, _numJoinCols, o) ?
+                        chksString[_numJoinCols + col][o] : null;  // colForBatch.atd(row);
+              }
+            } else {
+              frameLikeChunks[colIndex][whichChunk][offset] = validateKeys(chks, leftchks, _numJoinCols, o) ?
+                      chks[_numJoinCols + col][o] : Double.NaN;  // colForBatch.atd(row);
+            }
           }
           resultLoc++;
         }
@@ -754,7 +762,7 @@ class BinaryMerge extends DTask<BinaryMerge> {
   }
 
   private boolean validateKeys(double[][] chks, double[][] leftChks, int numJointCols, int row) {
-    if (leftChks == null)
+    if ((leftChks == null))
       return true;
     for (int cindex=0; cindex < numJointCols; cindex++) {
       if (Double.isNaN(chks[cindex][row]) && !(Double.isNaN(leftChks[cindex][row])))

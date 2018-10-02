@@ -146,11 +146,11 @@ public class Merge {
       }
       // run the merge for the whole lefts that start after the last right
       if (allLeft) for (int leftMSB=(int)leftMSBto+1; leftMSB<=255; leftMSB++) {
-          BinaryMerge bm = new BinaryMerge(new BinaryMerge.FFSB(leftFrame,   leftMSB    ,leftShift,
-                  leftIndex._bytesUsed,leftIndex._base),
-                                           new BinaryMerge.FFSB(riteFrame,/*rightMSB*/-1,riteShift,
-                                                   riteIndex._bytesUsed,riteIndex._base),
-                                           true);
+        BinaryMerge bm = new BinaryMerge(new BinaryMerge.FFSB(leftFrame,   leftMSB    ,leftShift,
+                leftIndex._bytesUsed,leftIndex._base),
+                new BinaryMerge.FFSB(riteFrame,/*rightMSB*/-1,riteShift,
+                        riteIndex._bytesUsed,riteIndex._base),
+                true);
           bmList.add(bm);
           fs.add(new RPC<>(SplitByMSBLocal.ownerOfMSB(leftMSB), bm).call());
       }
