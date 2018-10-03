@@ -35,7 +35,7 @@ def call(final pipelineContext, final stageConfig, final benchmarkFolderConfig) 
             'springleaf': [
                 50: [
                     'train_time_min': 55.0,
-                    'train_time_max': 63.5
+                    'train_time_max': 65
                 ],
                 200: [
                     'train_time_min': 463.0,
@@ -50,6 +50,58 @@ def call(final pipelineContext, final stageConfig, final benchmarkFolderConfig) 
                 200: [
                     'train_time_min': 502.0,
                     'train_time_max': 549.0
+                ]
+            ]
+        ],
+        'gbm-client': [
+            'paribas': [
+                50: [
+                    'train_time_min': 12,
+                    'train_time_max': 16
+                ],
+                200: [
+                    'train_time_min': 60,
+                    'train_time_max': 90
+                ]
+            ],
+            'homesite': [
+                50: [
+                    'train_time_min': 12,
+                    'train_time_max': 16
+                ],
+                200: [
+                    'train_time_min': 49,
+                    'train_time_max': 73
+                ]
+            ],
+            'redhat': [
+                50: [
+                    'train_time_min': 32,
+                    'train_time_max': 40
+                ],
+                200: [
+                    'train_time_min': 175,
+                    'train_time_max': 215
+                ]
+            ],
+            'springleaf': [
+                50: [
+                    'train_time_min': 61,
+                    'train_time_max': 70
+                ],
+                200: [
+                    'train_time_min': 550,
+                    'train_time_max': 595
+                ]
+            ],
+            'higgs': [
+                50: [
+                    'train_time_min': 81,
+                    'train_time_max': 95
+                ],
+                200: [
+                    'train_time_min': 485,
+                    'train_time_max': 530
                 ]
             ]
         ],
@@ -68,7 +120,7 @@ def call(final pipelineContext, final stageConfig, final benchmarkFolderConfig) 
             ],
             'higgs': [
                 100: [
-                    'train_time_min': 203,
+                    'train_time_min': 201,
                     'train_time_max': 218
                 ]
             ]
