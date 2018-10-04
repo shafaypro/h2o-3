@@ -5,8 +5,8 @@ THIS_FILE := $(lastword $(MAKEFILE_LIST))
 VERSION ?= dev
 PUSH ?= 0
 GPU ?= 0
-H2O_BRANCH ?= master
-GRADLE_VERSION ?= 4.10
+H2O_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
+GRADLE_VERSION ?= $(shell cat ../gradle/wrapper/gradle-wrapper.properties | grep distributionUrl | egrep -o '([0-9]+\.+)+[0-9]+')
 
 ifeq ($(GPU),1)
 	GPU_SUFFIX := -gpu
