@@ -90,8 +90,8 @@ def call(final pipelineContext, final stageConfig, final benchmarkFolderConfig) 
                     'train_time_max': 70
                 ],
                 200: [
-                    'train_time_min': 550,
-                    'train_time_max': 595
+                    'train_time_min': 570,
+                    'train_time_max': 615
                 ]
             ],
             'higgs': [
@@ -109,7 +109,7 @@ def call(final pipelineContext, final stageConfig, final benchmarkFolderConfig) 
             'airlines-1m': [
                 100: [
                     'train_time_min': 38,
-                    'train_time_max': 75
+                    'train_time_max': 76
                 ]
             ],
             'airlines-10m': [
@@ -120,7 +120,7 @@ def call(final pipelineContext, final stageConfig, final benchmarkFolderConfig) 
             ],
             'higgs': [
                 100: [
-                    'train_time_min': 201,
+                    'train_time_min': 200,
                     'train_time_max': 218
                 ]
             ]
@@ -179,7 +179,7 @@ def call(final pipelineContext, final stageConfig, final benchmarkFolderConfig) 
         for (column in TESTED_COLUMNS) {
             for (line in csvData) {
                 if (EXPECTED_VALUES[line.algorithm] == null) {
-                    error("Cannot find EXPECTED VALUES for ${line.algorithm}")
+                    error "Cannot find EXPECTED VALUES for this line: ${line}"
                 }
                 def datasetValues = EXPECTED_VALUES[line.algorithm][line.dataset]
                 if (datasetValues) {
